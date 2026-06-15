@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Mandarin Master - Práctica de Hanzi</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <!-- Hanzi Writer CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/hanzi-writer@3.5/dist/hanzi-writer.min.js"></script>
+</head>
+<body>
+    <div id="app-container">
+        <header>
+            <h1>Mandarin Master 🐉</h1>
+            <nav id="mode-selector">
+                <button class="mode-btn active" data-mode="practice">Práctica Guiada</button>
+                <button class="mode-btn" data-mode="pinyin-hanzi">Pinyin a Hanzi</button>
+                <button class="mode-btn" data-mode="hanzi-pinyin">Hanzi a Pinyin</button>
+            </nav>
+        </header>
+
+        <main id="main-content">
+            <!-- Pestaña de Selección de Nivel -->
+            <div id="level-selection" class="screen active">
+                <h2>¿Qué quieres practicar hoy?</h2>
+                
+                <div class="list-selector-container">
+                    <label for="list-select">Selecciona la lección o nivel:</label>
+                    <select id="list-select" class="list-select">
+                        <option value="Libro - Lección 1">Libro - Lección 1</option>
+                        <option value="Libro - Lección 2">Libro - Lección 2</option>
+                        <option value="Libro - Lección 3">Libro - Lección 3</option>
+                        <option value="Libro - Lección 4">Libro - Lección 4</option>
+                        <option value="Libro - Lección 5">Libro - Lección 5</option>
+                        <option value="Libro - Lección 6">Libro - Lección 6 (Repaso)</option>
+                        <option value="HSK 1 (Básico)">HSK 1 (Básico)</option>
+                    </select>
+                </div>
+
+                <div class="card-grid">
+                    <div class="card level-card" data-category="words">
+                        <h3>Palabras Nuevas (生词)</h3>
+                        <p>Practica caracteres individuales y vocabulario base.</p>
+                        <button class="primary-btn">Comenzar</button>
+                    </div>
+                    <div class="card level-card" data-category="sentences">
+                        <h3>Oraciones (句子)</h3>
+                        <p>Lee y escribe diálogos completos.</p>
+                        <button class="primary-btn">Comenzar</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Pantalla de Ejercicio -->
+            <div id="exercise-screen" class="screen">
+                <div class="progress-bar-container">
+                    <div id="progress-bar" style="width: 0%;"></div>
+                </div>
+                
+                <div class="exercise-header">
+                    <button id="btn-back" class="secondary-btn">← Volver</button>
+                    <span id="counter-text">1 / 10</span>
+                </div>
+
+                <div class="flashcard card">
+                    <div id="prompt-area">
+                        <h2 id="prompt-main"></h2>
+                        <p id="prompt-sub"></p>
+                    </div>
+
+                    <!-- Canvas Area -->
+                    <div id="canvas-container">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="250" height="250" id="hanzi-canvas">
+                            <line x1="0" y1="0" x2="250" y2="250" stroke="#DDD" />
+                            <line x1="250" y1="0" x2="0" y2="250" stroke="#DDD" />
+                            <line x1="125" y1="0" x2="125" y2="250" stroke="#DDD" />
+                            <line x1="0" y1="125" x2="250" y2="125" stroke="#DDD" />
+                        </svg>
+                        
+                        <div id="canvas-controls">
+                            <button id="btn-animate" class="icon-btn" title="Animar Trazos">▶️ Animar</button>
+                            <button id="btn-clear" class="icon-btn" title="Limpiar Lienzo">🔄 Borrar</button>
+                            <button id="btn-quiz" class="icon-btn" title="Modo Prueba">✍️ Evaluar</button>
+                        </div>
+                    </div>
+
+                    <!-- Input para pinyin -->
+                    <div id="input-container" style="display: none; flex-direction: column; width: 100%; gap: 10px;">
+                        
+                        <!-- Teclado de tonos virtuales -->
+                        <div id="tone-keyboard" class="tone-keyboard">
+                            <span>Tonos:</span>
+                            <button class="tone-btn" data-tone="ā">ā</button>
+                            <button class="tone-btn" data-tone="á">á</button>
+                            <button class="tone-btn" data-tone="ǎ">ǎ</button>
+                            <button class="tone-btn" data-tone="à">à</button>
+                            
+                            <button class="tone-btn" data-tone="ē">ē</button>
+                            <button class="tone-btn" data-tone="é">é</button>
+                            <button class="tone-btn" data-tone="ě">ě</button>
+                            <button class="tone-btn" data-tone="è">è</button>
+                            
+                            <button class="tone-btn" data-tone="ī">ī</button>
+                            <button class="tone-btn" data-tone="í">í</button>
+                            <button class="tone-btn" data-tone="ǐ">ǐ</button>
+                            <button class="tone-btn" data-tone="ì">ì</button>
+
+                            <button class="tone-btn" data-tone="ō">ō</button>
+                            <button class="tone-btn" data-tone="ó">ó</button>
+                            <button class="tone-btn" data-tone="ǒ">ǒ</button>
+                            <button class="tone-btn" data-tone="ò">ò</button>
+
+                            <button class="tone-btn" data-tone="ū">ū</button>
+                            <button class="tone-btn" data-tone="ú">ú</button>
+                            <button class="tone-btn" data-tone="ǔ">ǔ</button>
+                            <button class="tone-btn" data-tone="ù">ù</button>
+
+                            <button class="tone-btn" data-tone="ǖ">ǖ</button>
+                            <button class="tone-btn" data-tone="ǘ">ǘ</button>
+                            <button class="tone-btn" data-tone="ǚ">ǚ</button>
+                            <button class="tone-btn" data-tone="ǜ">ǜ</button>
+                        </div>
+
+                        <div style="display: flex; gap: 10px;">
+                            <input type="text" id="pinyin-input" placeholder="Escribe el pinyin (ej: ni hao)">
+                            <button id="btn-check" class="primary-btn">Comprobar</button>
+                        </div>
+                    </div>
+                    
+                    <div id="feedback-message"></div>
+                </div>
+
+                <div class="navigation-controls">
+                    <button id="btn-prev" class="nav-btn" disabled>Anterior</button>
+                    <button id="btn-next" class="nav-btn">Siguiente</button>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="data.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
