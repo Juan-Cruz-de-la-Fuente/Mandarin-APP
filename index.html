@@ -13,11 +13,6 @@
     <div id="app-container">
         <header>
             <h1>Mandarin Master 🐉</h1>
-            <nav id="mode-selector">
-                <button class="mode-btn active" data-mode="practice">Práctica Guiada</button>
-                <button class="mode-btn" data-mode="pinyin-hanzi">Pinyin a Hanzi</button>
-                <button class="mode-btn" data-mode="hanzi-pinyin">Hanzi a Pinyin</button>
-            </nav>
         </header>
 
         <main id="main-content">
@@ -45,8 +40,18 @@
             <!-- Pantalla de Vista de Lección -->
             <div id="lesson-view-screen" class="screen">
                 <button id="btn-back-to-levels" class="secondary-btn" style="margin-bottom: 20px;">← Volver a Lecciones</button>
-                <h2 id="lesson-title">Título de la Lección</h2>
+                <h2 id="lesson-title" style="margin-bottom: 20px;">Título de la Lección</h2>
                 
+                <div style="margin-bottom: 25px; background: rgba(0,0,0,0.1); padding: 15px; border-radius: 12px;">
+                    <h3 style="margin-bottom: 10px; font-size: 1.1rem;">1. Elige el Modo de Práctica:</h3>
+                    <nav id="mode-selector">
+                        <button class="mode-btn active" data-mode="practice">Práctica Guiada</button>
+                        <button class="mode-btn" data-mode="pinyin-hanzi">Pinyin a Hanzi</button>
+                        <button class="mode-btn" data-mode="hanzi-pinyin">Hanzi a Pinyin</button>
+                    </nav>
+                </div>
+
+                <h3 style="margin-bottom: 10px; font-size: 1.1rem;">2. Elige qué practicar:</h3>
                 <div class="card-grid" style="margin-bottom: 30px;">
                     <div class="card level-card" data-category="words">
                         <h3>Palabras Nuevas (生词)</h3>
