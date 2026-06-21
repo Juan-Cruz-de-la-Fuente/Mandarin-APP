@@ -2,7 +2,12 @@ let currentMode = 'practice'; // practice, pinyin-hanzi, hanzi-pinyin
 let currentCategory = 'words'; // words, sentences
 let currentDataList = [];
 let currentIndex = 0;
-let writer = null;
+
+// Variables para múltiples caracteres y repeticiones
+let writers = [];
+let validChars = [];
+let targetRepetitions = 3;
+let currentRepetition = 1;
 
 // DOM Elements
 const screens = {
@@ -41,6 +46,11 @@ function setupEventListeners() {
             modeBtns.forEach(b => b.classList.remove('active'));
             e.target.classList.add('active');
             currentMode = e.target.dataset.mode;
+            
+            // Si estamos en la pantalla de ejercicio, actualizar la vista
+            if (screens.exercise.classList.contains('active') && currentDataList.length > 0) {
+                loadCurrentItem();
+            }
         });
     });
 
@@ -54,28 +64,31 @@ function setupEventListeners() {
 
     btnBack.addEventListener('click', () => {
         showScreen('level');
-        if (writer) {
-            writer.cancelQuiz();
+        if (writers.length > 0) {
+            writers.forEach(w => w.cancelQuiz());
         }
     });
 
     btnPrev.addEventListener('click', () => navigate(-1));
     btnNext.addEventListener('click', () => navigate(1));
 
-    btnAnimate.addEventListener('click', () => writer && writer.animateCharacter());
+    btnAnimate.addEventListener('click', () => {
+        if (writers.length > 0) writers.forEach(w => w.animateCharacter());
+    });
     btnClear.addEventListener('click', () => {
-        if (writer) {
-            writer.clear();
+        if (writers.length > 0) {
+            writers.forEach(w => w.clear());
             if (currentMode === 'practice' || currentMode === 'pinyin-hanzi') {
-                writer.quiz(); // Restart quiz mode
+                // Restart current repetition
+                startQuizSequence(0);
             }
         }
         feedbackMsg.textContent = '';
     });
     
     btnQuiz.addEventListener('click', () => {
-        if (writer) {
-            writer.quiz();
+        if (writers.length > 0) {
+            startQuizSequence(0);
             showMessage('Dibuja el carácter en el cuadro.', 'feedback-success');
         }
     });
@@ -145,13 +158,30 @@ function updateProgress() {
     btnNext.disabled = currentIndex === currentDataList.length - 1;
 }
 
+function updateRepetitionDisplay() {
+    const repCounter = document.getElementById('repetition-counter');
+    if (currentMode === 'hanzi-pinyin') {
+        repCounter.style.display = 'none';
+    } else {
+        repCounter.style.display = 'block';
+        repCounter.textContent = `Repetición: ${currentRepetition}/${targetRepetitions}`;
+    }
+}
+
 function loadCurrentItem() {
     updateProgress();
     feedbackMsg.textContent = '';
     pinyinInput.value = '';
     
     const item = currentDataList[currentIndex];
-    const firstChar = item.hanzi.charAt(0); // Para el canvas, usamos el primer carácter
+    
+    // Extraer solo caracteres chinos (ignorar puntuación)
+    validChars = item.hanzi.match(/[\u4e00-\u9fa5]/g) || [];
+    currentRepetition = 1;
+    updateRepetitionDisplay();
+
+    // Cancelar quizzes anteriores si existían
+    writers.forEach(w => w.cancelQuiz());
 
     // Configuramos la interfaz según el modo
     if (currentMode === 'hanzi-pinyin') {
@@ -163,54 +193,100 @@ function loadCurrentItem() {
         pinyinInput.focus();
     } 
     else if (currentMode === 'pinyin-hanzi') {
-        // Modo Escritura: Mostrar Pinyin/Significado, Mostrar Canvas (vacío), Ocultar Input
+        // Modo Escritura a ciegas
         promptMain.textContent = item.pinyin;
         promptSub.textContent = item.meaning;
         canvasContainer.style.display = 'block';
         inputContainer.style.display = 'none';
-        initCanvas(firstChar, true);
+        initCanvases(validChars, true);
     }
     else {
-        // Práctica Guiada: Mostrar todo, Canvas muestra trazos
+        // Práctica Guiada: Muestra contorno gris de ayuda
         promptMain.textContent = `${item.pinyin} - ${item.meaning}`;
-        promptSub.textContent = item.hanzi; // Mostrarlo como referencia
+        promptSub.textContent = item.hanzi;
         canvasContainer.style.display = 'block';
         inputContainer.style.display = 'none';
-        initCanvas(firstChar, false);
+        initCanvases(validChars, false);
     }
 }
 
-function initCanvas(character, isQuiz) {
-    const svg = document.getElementById('hanzi-canvas');
-    // Limpiamos trazos anteriores
-    svg.innerHTML = `
-        <line x1="0" y1="0" x2="250" y2="250" stroke="#DDD" />
-        <line x1="250" y1="0" x2="0" y2="250" stroke="#DDD" />
-        <line x1="125" y1="0" x2="125" y2="250" stroke="#DDD" />
-        <line x1="0" y1="125" x2="250" y2="125" stroke="#DDD" />
-    `;
+function initCanvases(chars, isStrictQuiz) {
+    const container = document.getElementById('dynamic-canvases');
+    container.innerHTML = '';
+    writers = [];
+    
+    if (chars.length === 0) return;
 
-    writer = HanziWriter.create('hanzi-canvas', character, {
-        width: 250,
-        height: 250,
-        padding: 15,
-        strokeColor: '#1a202c',
-        radicalColor: '#4fd1c5',
-        showOutline: !isQuiz, // Ocultar el contorno si es evaluación
+    // Calcular tamaño responsivo
+    const canvasSize = chars.length > 4 ? 100 : (chars.length > 2 ? 140 : 200);
+
+    chars.forEach((char, index) => {
+        const svgId = `canvas-${index}`;
+        const wrapper = document.createElement('div');
+        wrapper.innerHTML = `
+            <svg xmlns="http://www.w3.org/2000/svg" width="${canvasSize}" height="${canvasSize}" id="${svgId}" style="background: rgba(0,0,0,0.2); border-radius: 8px;">
+                <line x1="0" y1="0" x2="${canvasSize}" y2="${canvasSize}" stroke="#555" stroke-dasharray="4,4"/>
+                <line x1="${canvasSize}" y1="0" x2="0" y2="${canvasSize}" stroke="#555" stroke-dasharray="4,4"/>
+                <line x1="${canvasSize/2}" y1="0" x2="${canvasSize/2}" y2="${canvasSize}" stroke="#555" stroke-dasharray="4,4"/>
+                <line x1="0" y1="${canvasSize/2}" x2="${canvasSize}" y2="${canvasSize/2}" stroke="#555" stroke-dasharray="4,4"/>
+            </svg>
+        `;
+        container.appendChild(wrapper);
+
+        const w = HanziWriter.create(svgId, char, {
+            width: canvasSize,
+            height: canvasSize,
+            padding: canvasSize * 0.08,
+            strokeColor: '#f0f4f8',
+            radicalColor: '#4fd1c5',
+            showOutline: !isStrictQuiz,
+            outlineColor: '#555'
+        });
+        writers.push(w);
     });
 
-    if (isQuiz) {
-        writer.quiz({
-            onMistake: function(strokeData) {
-                showMessage(`Error en el trazo ${strokeData.strokeNum + 1}.`, 'feedback-error');
+    // Empezar la secuencia de dibujo automáticamente
+    startQuizSequence(0);
+}
+
+function startQuizSequence(startIndex = 0) {
+    if (writers.length === 0) return;
+    
+    let charIndex = startIndex;
+    
+    function startNextChar() {
+        if (charIndex >= writers.length) {
+            currentRepetition++;
+            if (currentRepetition > targetRepetitions) {
+                showMessage(`¡Excelente! Avanzando...`, 'feedback-success');
+                setTimeout(() => {
+                    navigate(1);
+                }, 1000);
+            } else {
+                showMessage(`¡Bien! Siguiente repetición...`, 'feedback-success');
+                updateRepetitionDisplay();
+                setTimeout(() => {
+                    writers.forEach(w => w.clear());
+                    charIndex = 0;
+                    startNextChar();
+                }, 800);
+            }
+            return;
+        }
+
+        writers[charIndex].quiz({
+            onMistake: function() {
+                showMessage(`Error en el trazo. Intenta de nuevo.`, 'feedback-error');
             },
-            onComplete: function(summaryData) {
-                showMessage(`¡Excelente! Carácter completado.`, 'feedback-success');
+            onComplete: function() {
+                showMessage(`Carácter completado.`, 'feedback-success');
+                charIndex++;
+                setTimeout(startNextChar, 300);
             }
         });
-    } else {
-        writer.animateCharacter();
     }
+
+    startNextChar();
 }
 
 function checkPinyinAnswer() {
