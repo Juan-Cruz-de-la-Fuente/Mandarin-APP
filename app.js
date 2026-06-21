@@ -252,6 +252,9 @@ function initCanvases(chars, isStrictQuiz) {
 function startQuizSequence(startIndex = 0) {
     if (writers.length === 0) return;
     
+    // Cancelar cualquier quiz activo para evitar conflictos
+    writers.forEach(w => w.cancelQuiz());
+    
     let charIndex = startIndex;
     
     function startNextChar() {
@@ -266,10 +269,14 @@ function startQuizSequence(startIndex = 0) {
                 showMessage(`¡Bien! Siguiente repetición...`, 'feedback-success');
                 updateRepetitionDisplay();
                 setTimeout(() => {
-                    writers.forEach(w => w.clear());
+                    writers.forEach(w => {
+                        w.cancelQuiz(); // Asegurar que el estado interno se reinicie
+                        w.clear();
+                    });
                     charIndex = 0;
+                    showMessage('Empieza a dibujar', 'feedback-success');
                     startNextChar();
-                }, 800);
+                }, 1200); // Dar un poco más de tiempo para ver que se completó
             }
             return;
         }
