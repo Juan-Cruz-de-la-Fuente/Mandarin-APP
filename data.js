@@ -374,5 +374,45 @@ const dictionary = {
             { hanzi: "明天我很忙", pinyin: "míngtiān wǒ hěn máng", meaning: "Mañana estoy muy ocupado" },
             { hanzi: "恐怕不行", pinyin: "kǒngpà bù xíng", meaning: "Me temo que no se puede" }
         ]
+    },
+    "Vocabulario - Números": {
+        words: [
+            { hanzi: "一", pinyin: "yī", meaning: "uno" },
+            { hanzi: "二", pinyin: "èr", meaning: "dos" },
+            { hanzi: "三", pinyin: "sān", meaning: "tres" },
+            { hanzi: "四", pinyin: "sì", meaning: "cuatro" },
+            { hanzi: "五", pinyin: "wǔ", meaning: "cinco" },
+            { hanzi: "六", pinyin: "liù", meaning: "seis" },
+            { hanzi: "七", pinyin: "qī", meaning: "siete" },
+            { hanzi: "八", pinyin: "bā", meaning: "ocho" },
+            { hanzi: "九", pinyin: "jiǔ", meaning: "nueve" },
+            { hanzi: "十", pinyin: "shí", meaning: "diez" },
+            { hanzi: "十五", pinyin: "shí wǔ", meaning: "quince" },
+            { hanzi: "二十", pinyin: "èr shí", meaning: "veinte" },
+            { hanzi: "五十五", pinyin: "wǔ shí wǔ", meaning: "cincuenta y cinco" },
+            { hanzi: "九十九", pinyin: "jiǔ shí jiǔ", meaning: "noventa y nueve" },
+            { hanzi: "一百", pinyin: "yì bǎi", meaning: "cien" },
+            { hanzi: "零", pinyin: "líng", meaning: "cero" }
+        ],
+        sentences: []
+    },
+    "Vocabulario - Colores": {
+        words: [
+            { hanzi: "颜色", pinyin: "yán sè", meaning: "color" },
+            { hanzi: "红色", pinyin: "hóng sè", meaning: "rojo" },
+            { hanzi: "蓝色", pinyin: "lán sè", meaning: "azul" },
+            { hanzi: "绿色", pinyin: "lǜ sè", meaning: "verde" },
+            { hanzi: "黄色", pinyin: "huáng sè", meaning: "amarillo" },
+            { hanzi: "黑色", pinyin: "hēi sè", meaning: "negro" },
+            { hanzi: "白色", pinyin: "bái sè", meaning: "blanco" },
+            { hanzi: "粉色", pinyin: "fěn sè", meaning: "rosa" },
+            { hanzi: "紫色", pinyin: "zǐ sè", meaning: "morado" },
+            { hanzi: "棕色", pinyin: "zōng sè", meaning: "marrón" },
+            { hanzi: "灰色", pinyin: "huī sè", meaning: "gris" }
+        ],
+        sentences: [
+            { hanzi: "你喜欢什么颜色？", pinyin: "nǐ xǐhuan shénme yánsè?", meaning: "¿Qué color te gusta?" },
+            { hanzi: "我喜欢红色。", pinyin: "wǒ xǐhuan hóngsè.", meaning: "Me gusta el rojo." }
+        ]
     }
 };

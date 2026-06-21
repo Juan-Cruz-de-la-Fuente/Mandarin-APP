@@ -35,19 +35,46 @@
                         <option value="Libro - Lección 5">Libro - Lección 5</option>
                         <option value="Libro - Lección 6">Libro - Lección 6 (Repaso)</option>
                         <option value="HSK 1 (Básico)">HSK 1 (Básico)</option>
+                        <option value="Vocabulario - Números">Vocabulario - Números</option>
+                        <option value="Vocabulario - Colores">Vocabulario - Colores</option>
                     </select>
+                    <button id="btn-view-lesson" class="primary-btn" style="margin-top: 20px; width: 100%;">Abrir Lección</button>
                 </div>
+            </div>
 
-                <div class="card-grid">
+            <!-- Pantalla de Vista de Lección -->
+            <div id="lesson-view-screen" class="screen">
+                <button id="btn-back-to-levels" class="secondary-btn" style="margin-bottom: 20px;">← Volver a Lecciones</button>
+                <h2 id="lesson-title">Título de la Lección</h2>
+                
+                <div class="card-grid" style="margin-bottom: 30px;">
                     <div class="card level-card" data-category="words">
                         <h3>Palabras Nuevas (生词)</h3>
                         <p>Practica caracteres individuales y vocabulario base.</p>
-                        <button class="primary-btn">Comenzar</button>
+                        <button class="primary-btn">Practicar Palabras</button>
                     </div>
                     <div class="card level-card" data-category="sentences">
                         <h3>Oraciones (句子)</h3>
                         <p>Lee y escribe diálogos completos.</p>
-                        <button class="primary-btn">Comenzar</button>
+                        <button class="primary-btn">Practicar Oraciones</button>
+                    </div>
+                </div>
+
+                <div class="vocab-list-container">
+                    <h3>Lista de Vocabulario</h3>
+                    <div class="table-responsive">
+                        <table id="vocab-table" class="vocab-table">
+                            <thead>
+                                <tr>
+                                    <th>Hanzi</th>
+                                    <th>Pinyin</th>
+                                    <th>Español</th>
+                                </tr>
+                            </thead>
+                            <tbody id="vocab-tbody">
+                                <!-- Filas generadas dinámicamente -->
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             </div>

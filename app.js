@@ -12,11 +12,14 @@ let currentRepetition = 1;
 // DOM Elements
 const screens = {
     level: document.getElementById('level-selection'),
+    lesson: document.getElementById('lesson-view-screen'),
     exercise: document.getElementById('exercise-screen')
 };
 
 const modeBtns = document.querySelectorAll('.mode-btn');
 const categoryBtns = document.querySelectorAll('.level-card .primary-btn');
+const btnViewLesson = document.getElementById('btn-view-lesson');
+const btnBackToLevels = document.getElementById('btn-back-to-levels');
 const btnBack = document.getElementById('btn-back');
 const btnPrev = document.getElementById('btn-prev');
 const btnNext = document.getElementById('btn-next');
@@ -54,6 +57,34 @@ function setupEventListeners() {
         });
     });
 
+    btnViewLesson.addEventListener('click', () => {
+        const selectedListKey = document.getElementById('list-select').value;
+        const selectedDict = dictionary[selectedListKey];
+        
+        document.getElementById('lesson-title').textContent = selectedListKey;
+        
+        // Popular tabla de vocabulario
+        const tbody = document.getElementById('vocab-tbody');
+        tbody.innerHTML = '';
+        if (selectedDict.words) {
+            selectedDict.words.forEach(w => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td class="hanzi-col">${w.hanzi}</td>
+                    <td>${w.pinyin}</td>
+                    <td>${w.meaning}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+        
+        showScreen('lesson');
+    });
+
+    btnBackToLevels.addEventListener('click', () => {
+        showScreen('level');
+    });
+
     categoryBtns.forEach((btn, index) => {
         btn.addEventListener('click', (e) => {
             const card = e.target.closest('.level-card');
@@ -63,7 +94,7 @@ function setupEventListeners() {
     });
 
     btnBack.addEventListener('click', () => {
-        showScreen('level');
+        showScreen('lesson');
         if (writers.length > 0) {
             writers.forEach(w => w.cancelQuiz());
         }
