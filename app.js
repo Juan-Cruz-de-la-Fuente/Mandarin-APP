@@ -173,6 +173,9 @@ function loadCurrentItem() {
     feedbackMsg.textContent = '';
     pinyinInput.value = '';
     
+    // Configurar repeticiones según la categoría: 10 para palabras, 3 para oraciones
+    targetRepetitions = (currentCategory === 'words') ? 10 : 3;
+    
     const item = currentDataList[currentIndex];
     
     // Extraer solo caracteres chinos (ignorar puntuación)
@@ -269,14 +272,11 @@ function startQuizSequence(startIndex = 0) {
                 showMessage(`¡Bien! Siguiente repetición...`, 'feedback-success');
                 updateRepetitionDisplay();
                 setTimeout(() => {
-                    writers.forEach(w => {
-                        w.cancelQuiz(); // Asegurar que el estado interno se reinicie
-                        w.clear();
-                    });
-                    charIndex = 0;
+                    // En lugar de limpiar, destruimos y recreamos los canvas 
+                    // para evitar cualquier estado "trabado" de la librería
                     showMessage('Empieza a dibujar', 'feedback-success');
-                    startNextChar();
-                }, 1200); // Dar un poco más de tiempo para ver que se completó
+                    initCanvases(validChars, currentMode === 'pinyin-hanzi');
+                }, 1000); // Dar 1 segundo para ver el trazo terminado antes de borrar
             }
             return;
         }
