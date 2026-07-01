@@ -114,9 +114,14 @@ function setupEventListeners() {
     
     btnClear.addEventListener('click', () => {
         if (writers.length > 0) {
-            writers.forEach(w => w.clear());
+            writers.forEach((w, index) => {
+                w.clear();
+                // Si era parte de la primera palabra en modo práctica, restaurar el outline al borrar
+                if (currentMode === 'practice' && index < validChars.length) {
+                    w.showOutline();
+                }
+            });
             if (currentMode === 'practice' || currentMode === 'pinyin-hanzi') {
-                // Reiniciar la secuencia desde el principio
                 startQuizSequence(0);
             }
         }
@@ -306,12 +311,10 @@ function initCanvases(chars, isStrictQuiz) {
                 height: canvasSize,
                 padding: canvasSize * 0.08,
                 strokeColor: '#f0f4f8',
-                radicalColor: '#f0f4f8', // Usamos el mismo color para evitar confusiones de trazos a medias
+                radicalColor: '#f0f4f8',
                 showOutline: shouldShowOutline,
                 outlineColor: '#666',
-                showCharacter: false, // Siempre falso, el usuario DEBE dibujarlo
-                showHintAfterMisses: 1, // Mostrar una pista si el usuario se equivoca de trazo
-                leniency: 1.5 // Mayor flexibilidad para tablets
+                showCharacter: false
             });
             writers.push(w);
         });
@@ -346,7 +349,9 @@ function startQuizSequence(startIndex = 0) {
         }
 
         writers[charIndex].quiz({
-            onMistake: function() {
+            leniency: 1.5, // Flexibilidad para dibujar en tablet
+            showHintAfterMisses: 1, // Pista al primer error
+            onMistake: function(strokeData) {
                 showMessage(`Error en el trazo. Intenta de nuevo.`, 'feedback-error');
             },
             onComplete: function() {
