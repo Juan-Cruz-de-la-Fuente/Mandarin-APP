@@ -114,16 +114,10 @@ function setupEventListeners() {
     
     btnClear.addEventListener('click', () => {
         if (writers.length > 0) {
-            writers.forEach((w, index) => {
-                w.clear();
-                // Restaurar la palabra de referencia que se acaba de borrar
-                if (index < validChars.length) {
-                    w.showCharacter();
-                }
-            });
+            writers.forEach(w => w.clear());
             if (currentMode === 'practice' || currentMode === 'pinyin-hanzi') {
-                // Reiniciar la secuencia empezando después de la palabra de referencia
-                startQuizSequence(validChars.length);
+                // Reiniciar la secuencia desde el principio
+                startQuizSequence(0);
             }
         }
         feedbackMsg.textContent = '';
@@ -131,13 +125,8 @@ function setupEventListeners() {
     
     btnQuiz.addEventListener('click', () => {
         if (writers.length > 0) {
-            writers.forEach((w, index) => {
-                w.clear();
-                if (index < validChars.length) {
-                    w.showCharacter();
-                }
-            });
-            startQuizSequence(validChars.length);
+            writers.forEach(w => w.clear());
+            startQuizSequence(0);
             showMessage('Dibuja el carácter en el cuadro.', 'feedback-success');
         }
     });
@@ -305,26 +294,31 @@ function initCanvases(chars, isStrictQuiz) {
             `;
             wordGroup.appendChild(wrapper);
 
-            // La primera palabra (r === 0) se muestra completa como referencia.
-            // Las demás (r > 0) van en blanco para que el usuario las escriba.
-            const isReference = (r === 0);
+            // La primera palabra (r === 0) muestra guías para trazar (outline) si estamos en práctica.
+            // Las demás (r > 0) van en blanco para escribirlas de memoria.
+            let shouldShowOutline = false;
+            if (currentMode === 'practice' && r === 0) {
+                shouldShowOutline = true;
+            }
 
             const w = HanziWriter.create(svgId, char, {
                 width: canvasSize,
                 height: canvasSize,
                 padding: canvasSize * 0.08,
                 strokeColor: '#f0f4f8',
-                radicalColor: '#4fd1c5',
-                showOutline: false, // Sin recuadros ni guías grises
-                showCharacter: isReference // Solo la primera palabra es visible
+                radicalColor: '#f0f4f8', // Usamos el mismo color para evitar confusiones de trazos a medias
+                showOutline: shouldShowOutline,
+                outlineColor: '#666',
+                showCharacter: false, // Siempre falso, el usuario DEBE dibujarlo
+                showHintAfterMisses: 1, // Mostrar una pista si el usuario se equivoca de trazo
+                leniency: 1.5 // Mayor flexibilidad para tablets
             });
             writers.push(w);
         });
     }
 
-    // Empezar la secuencia de dibujo automáticamente desde la segunda palabra (índice = validChars.length)
-    // ya que la primera palabra es solo de referencia visual.
-    startQuizSequence(validChars.length);
+    // Empezar la secuencia de dibujo automáticamente desde el principio
+    startQuizSequence(0);
 }
 
 function startQuizSequence(startIndex = 0) {
