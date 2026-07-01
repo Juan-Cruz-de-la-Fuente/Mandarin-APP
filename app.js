@@ -275,7 +275,7 @@ function initCanvases(chars, isStrictQuiz) {
             // Quitamos el fondo cuadrado y las líneas diagonales/cruzadas
             // Y agregamos solo una línea horizontal abajo para simular el renglón
             wrapper.innerHTML = `
-                <svg xmlns="http://www.w3.org/2000/svg" width="${canvasSize}" height="${canvasSize}" id="${svgId}" style="background: transparent; flex-shrink: 0;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="${canvasSize}" height="${canvasSize}" id="${svgId}" style="background: transparent; flex-shrink: 0; touch-action: none;">
                     <line x1="0" y1="${canvasSize - 10}" x2="${canvasSize}" y2="${canvasSize - 10}" stroke="#a0aec0" stroke-width="2"/>
                 </svg>
             `;
