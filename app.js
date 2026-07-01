@@ -254,11 +254,13 @@ function initCanvases(chars, isStrictQuiz) {
     container.style.overflowX = 'auto';
     container.style.justifyContent = 'flex-start';
     container.style.paddingBottom = '15px';
+    container.style.width = '100%';
+    container.style.maxWidth = '100%';
     
     if (chars.length === 0) return;
 
-    // Calcular tamaño responsivo
-    const canvasSize = chars.length > 4 ? 100 : (chars.length > 2 ? 140 : 200);
+    // Calcular tamaño responsivo y más compacto
+    const canvasSize = chars.length > 4 ? 60 : (chars.length > 2 ? 80 : 100);
 
     for (let r = 0; r < targetRepetitions; r++) {
         // Envolver cada repetición en un contenedor si tiene más de 1 caracter para agrupar palabras
