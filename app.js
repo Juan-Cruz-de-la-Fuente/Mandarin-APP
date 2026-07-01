@@ -310,10 +310,10 @@ function initCanvases(chars, isStrictQuiz) {
                 width: canvasSize,
                 height: canvasSize,
                 padding: canvasSize * 0.08,
-                strokeColor: '#f0f4f8',
-                radicalColor: '#f0f4f8',
+                strokeColor: '#2d3748', // Trazo oscuro para que se vea en fondo blanco
+                radicalColor: '#2d3748',
                 showOutline: shouldShowOutline,
-                outlineColor: '#666',
+                outlineColor: '#cbd5e0', // Guía gris claro
                 showCharacter: false
             });
             writers.push(w);
