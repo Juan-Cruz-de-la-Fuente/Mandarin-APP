@@ -104,11 +104,23 @@ function setupEventListeners() {
     btnNext.addEventListener('click', () => navigate(1));
 
     btnAnimate.addEventListener('click', () => {
-        if (writers.length > 0) writers.forEach(w => w.animateCharacter());
+        if (writers.length > 0) {
+            // Animar SOLAMENTE la palabra de referencia para no causar lag ni romper el quiz
+            for (let i = 0; i < validChars.length; i++) {
+                if (writers[i]) writers[i].animateCharacter();
+            }
+        }
     });
+    
     btnClear.addEventListener('click', () => {
         if (writers.length > 0) {
-            writers.forEach(w => w.clear());
+            writers.forEach((w, index) => {
+                w.clear();
+                // Restaurar la palabra de referencia que se acaba de borrar
+                if (index < validChars.length) {
+                    w.showCharacter();
+                }
+            });
             if (currentMode === 'practice' || currentMode === 'pinyin-hanzi') {
                 // Reiniciar la secuencia empezando después de la palabra de referencia
                 startQuizSequence(validChars.length);
@@ -119,6 +131,12 @@ function setupEventListeners() {
     
     btnQuiz.addEventListener('click', () => {
         if (writers.length > 0) {
+            writers.forEach((w, index) => {
+                w.clear();
+                if (index < validChars.length) {
+                    w.showCharacter();
+                }
+            });
             startQuizSequence(validChars.length);
             showMessage('Dibuja el carácter en el cuadro.', 'feedback-success');
         }
