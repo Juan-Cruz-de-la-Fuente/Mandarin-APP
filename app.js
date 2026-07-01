@@ -269,6 +269,10 @@ function initCanvases(chars, isStrictQuiz) {
         wordGroup.style.borderRight = r < targetRepetitions - 1 ? '2px dashed rgba(0,0,0,0.2)' : 'none';
         wordGroup.style.paddingRight = r < targetRepetitions - 1 ? '20px' : '0';
 
+        // IMPORTANTE: Agregar al contenedor principal ANTES de crear el HanziWriter 
+        // para que document.getElementById() funcione
+        container.appendChild(wordGroup);
+
         chars.forEach((char, index) => {
             const svgId = `canvas-${r}-${index}`;
             const wrapper = document.createElement('div');
@@ -299,8 +303,6 @@ function initCanvases(chars, isStrictQuiz) {
             });
             writers.push(w);
         });
-        
-        container.appendChild(wordGroup);
     }
 
     // Empezar la secuencia de dibujo automáticamente
