@@ -249,35 +249,59 @@ function initCanvases(chars, isStrictQuiz) {
     container.innerHTML = '';
     writers = [];
     
+    // Cambiar a scroll horizontal para simular un "renglón"
+    container.style.flexWrap = 'nowrap';
+    container.style.overflowX = 'auto';
+    container.style.justifyContent = 'flex-start';
+    container.style.paddingBottom = '15px';
+    
     if (chars.length === 0) return;
 
     // Calcular tamaño responsivo
     const canvasSize = chars.length > 4 ? 100 : (chars.length > 2 ? 140 : 200);
 
-    chars.forEach((char, index) => {
-        const svgId = `canvas-${index}`;
-        const wrapper = document.createElement('div');
-        wrapper.innerHTML = `
-            <svg xmlns="http://www.w3.org/2000/svg" width="${canvasSize}" height="${canvasSize}" id="${svgId}" style="background: rgba(0,0,0,0.2); border-radius: 8px;">
-                <line x1="0" y1="0" x2="${canvasSize}" y2="${canvasSize}" stroke="#555" stroke-dasharray="4,4"/>
-                <line x1="${canvasSize}" y1="0" x2="0" y2="${canvasSize}" stroke="#555" stroke-dasharray="4,4"/>
-                <line x1="${canvasSize/2}" y1="0" x2="${canvasSize/2}" y2="${canvasSize}" stroke="#555" stroke-dasharray="4,4"/>
-                <line x1="0" y1="${canvasSize/2}" x2="${canvasSize}" y2="${canvasSize/2}" stroke="#555" stroke-dasharray="4,4"/>
-            </svg>
-        `;
-        container.appendChild(wrapper);
+    for (let r = 0; r < targetRepetitions; r++) {
+        // Envolver cada repetición en un contenedor si tiene más de 1 caracter para agrupar palabras
+        const wordGroup = document.createElement('div');
+        wordGroup.style.display = 'flex';
+        wordGroup.style.gap = '5px';
+        wordGroup.style.marginRight = '20px';
+        wordGroup.style.borderRight = r < targetRepetitions - 1 ? '2px dashed rgba(0,0,0,0.2)' : 'none';
+        wordGroup.style.paddingRight = r < targetRepetitions - 1 ? '20px' : '0';
 
-        const w = HanziWriter.create(svgId, char, {
-            width: canvasSize,
-            height: canvasSize,
-            padding: canvasSize * 0.08,
-            strokeColor: '#f0f4f8',
-            radicalColor: '#4fd1c5',
-            showOutline: !isStrictQuiz,
-            outlineColor: '#555'
+        chars.forEach((char, index) => {
+            const svgId = `canvas-${r}-${index}`;
+            const wrapper = document.createElement('div');
+            // Quitamos el fondo cuadrado y las líneas diagonales/cruzadas
+            // Y agregamos solo una línea horizontal abajo para simular el renglón
+            wrapper.innerHTML = `
+                <svg xmlns="http://www.w3.org/2000/svg" width="${canvasSize}" height="${canvasSize}" id="${svgId}" style="background: transparent; flex-shrink: 0;">
+                    <line x1="0" y1="${canvasSize - 10}" x2="${canvasSize}" y2="${canvasSize - 10}" stroke="#a0aec0" stroke-width="2"/>
+                </svg>
+            `;
+            wordGroup.appendChild(wrapper);
+
+            // Primer hanzi (repetición 0) muestra outline, el resto invisible si es práctica guiada.
+            let shouldShowOutline = !isStrictQuiz;
+            if (currentMode === 'practice' && r > 0) {
+                shouldShowOutline = false; // "el resto ponerlos invisibles"
+            }
+
+            const w = HanziWriter.create(svgId, char, {
+                width: canvasSize,
+                height: canvasSize,
+                padding: canvasSize * 0.08,
+                strokeColor: '#f0f4f8',
+                radicalColor: '#4fd1c5',
+                showOutline: shouldShowOutline,
+                outlineColor: '#555',
+                showCharacter: false
+            });
+            writers.push(w);
         });
-        writers.push(w);
-    });
+        
+        container.appendChild(wordGroup);
+    }
 
     // Empezar la secuencia de dibujo automáticamente
     startQuizSequence(0);
@@ -293,23 +317,18 @@ function startQuizSequence(startIndex = 0) {
     
     function startNextChar() {
         if (charIndex >= writers.length) {
-            currentRepetition++;
-            if (currentRepetition > targetRepetitions) {
-                showMessage(`¡Excelente! Avanzando...`, 'feedback-success');
-                setTimeout(() => {
-                    navigate(1);
-                }, 1000);
-            } else {
-                showMessage(`¡Bien! Siguiente repetición...`, 'feedback-success');
-                updateRepetitionDisplay();
-                setTimeout(() => {
-                    // En lugar de limpiar, destruimos y recreamos los canvas 
-                    // para evitar cualquier estado "trabado" de la librería
-                    showMessage('Empieza a dibujar', 'feedback-success');
-                    initCanvases(validChars, currentMode === 'pinyin-hanzi');
-                }, 1000); // Dar 1 segundo para ver el trazo terminado antes de borrar
-            }
+            showMessage(`¡Excelente! Avanzando...`, 'feedback-success');
+            setTimeout(() => {
+                navigate(1);
+            }, 1000);
             return;
+        }
+
+        // Actualizar el contador de repetición visualmente
+        const currentRep = Math.floor(charIndex / validChars.length) + 1;
+        if (currentRep !== currentRepetition) {
+            currentRepetition = currentRep;
+            updateRepetitionDisplay();
         }
 
         writers[charIndex].quiz({
@@ -318,6 +337,13 @@ function startQuizSequence(startIndex = 0) {
             },
             onComplete: function() {
                 showMessage(`Carácter completado.`, 'feedback-success');
+                
+                // Asegurarse de que el contenedor scrollee para mostrar el caracter activo si es necesario
+                const activeCanvas = document.getElementById(`canvas-${currentRep - 1}-${charIndex % validChars.length}`);
+                if(activeCanvas) {
+                    activeCanvas.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+                }
+
                 charIndex++;
                 setTimeout(startNextChar, 300);
             }
