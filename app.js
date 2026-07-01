@@ -110,8 +110,8 @@ function setupEventListeners() {
         if (writers.length > 0) {
             writers.forEach(w => w.clear());
             if (currentMode === 'practice' || currentMode === 'pinyin-hanzi') {
-                // Restart current repetition
-                startQuizSequence(0);
+                // Reiniciar la secuencia empezando después de la palabra de referencia
+                startQuizSequence(validChars.length);
             }
         }
         feedbackMsg.textContent = '';
@@ -119,7 +119,7 @@ function setupEventListeners() {
     
     btnQuiz.addEventListener('click', () => {
         if (writers.length > 0) {
-            startQuizSequence(0);
+            startQuizSequence(validChars.length);
             showMessage('Dibuja el carácter en el cuadro.', 'feedback-success');
         }
     });
@@ -285,11 +285,9 @@ function initCanvases(chars, isStrictQuiz) {
             `;
             wordGroup.appendChild(wrapper);
 
-            // Primer hanzi (repetición 0) muestra outline, el resto invisible si es práctica guiada.
-            let shouldShowOutline = !isStrictQuiz;
-            if (currentMode === 'practice' && r > 0) {
-                shouldShowOutline = false; // "el resto ponerlos invisibles"
-            }
+            // La primera palabra (r === 0) se muestra completa como referencia.
+            // Las demás (r > 0) van en blanco para que el usuario las escriba.
+            const isReference = (r === 0);
 
             const w = HanziWriter.create(svgId, char, {
                 width: canvasSize,
@@ -297,16 +295,16 @@ function initCanvases(chars, isStrictQuiz) {
                 padding: canvasSize * 0.08,
                 strokeColor: '#f0f4f8',
                 radicalColor: '#4fd1c5',
-                showOutline: shouldShowOutline,
-                outlineColor: '#555',
-                showCharacter: false
+                showOutline: false, // Sin recuadros ni guías grises
+                showCharacter: isReference // Solo la primera palabra es visible
             });
             writers.push(w);
         });
     }
 
-    // Empezar la secuencia de dibujo automáticamente
-    startQuizSequence(0);
+    // Empezar la secuencia de dibujo automáticamente desde la segunda palabra (índice = validChars.length)
+    // ya que la primera palabra es solo de referencia visual.
+    startQuizSequence(validChars.length);
 }
 
 function startQuizSequence(startIndex = 0) {
